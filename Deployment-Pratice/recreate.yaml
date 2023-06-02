@@ -1,0 +1,44 @@
+kind: Deployment  # recreate is a native feature of deployment controller 
+apiVersion: apps/v1 
+metadata: 
+  name: recreate-demo 
+spec: 
+  replicas: 5
+  strategy:   # specifying the type of strategy 
+    type: Recreate  # Recreate object 
+
+  selector: 
+    matchLabels: 
+      name: recreate-demo 
+  
+  template: 
+    metadata: 
+      labels: 
+        name: recreate-demo 
+    spec: 
+      containers: 
+      - name: nginx 
+        image: adamtravis/rollouts:green
+        ports: 
+        - name: http 
+          containerPort: 8080 
+          protocol: TCP 
+
+---
+kind: Service 
+apiVersion: v1 
+metadata: 
+  name: recreate-service 
+  labels: 
+    version: production 
+
+spec: 
+  ports: 
+  - port: 80 
+    targetPort: 8080 
+    protocol: TCP 
+
+  selector: 
+      name: recreate-demo 
+  type: NodePort 
+
